@@ -2,7 +2,9 @@ import express from "express";
 import path from "path";
 import { createServer as createViteServer } from "vite";
 import dotenv from "dotenv";
-import { gitHubContentCache } from "./src/services/GitHubContentCache";
+import projectsHandler from "./api/projects";
+import internshipHandler from "./api/internship";
+import standardsHandler from "./api/project-id-standard";
 
 // Load environment variables
 dotenv.config();
@@ -15,37 +17,19 @@ async function startServer() {
 
   // API Route to fetch projects from GitHub (with caching and freshness check)
   app.get("/api/projects", async (req, res) => {
-    try {
-      const result = await gitHubContentCache.getProjects();
-      return res.json(result);
-    } catch (err: any) {
-      console.error("[Server] Error serving projects:", err);
-      // Ensure we don't throw 500, but fallback graciously
-      return res.json({ projects: [], source: "error" });
-    }
+    await projectsHandler(req, res);
   });
 
   // API Route to fetch internship markdown and convert to HTML (cached)
   app.get("/api/internship", async (req, res) => {
-    try {
-      const result = await gitHubContentCache.getInternship();
-      return res.json(result);
-    } catch (err: any) {
-      console.error("[Server] Error serving internship:", err);
-      return res.status(500).json({ error: "Failed to parse internship markdown" });
-    }
+    await internshipHandler(req, res);
   });
 
   // API Route to fetch project standard markdown and convert to HTML (cached)
   app.get("/api/project-id-standard", async (req, res) => {
-    try {
-      const result = await gitHubContentCache.getProjectIdStandard();
-      return res.json(result);
-    } catch (err: any) {
-      console.error("[Server] Error serving project standard:", err);
-      return res.status(500).json({ error: "Failed to parse standards markdown" });
-    }
+    await standardsHandler(req, res);
   });
+
 
   // Serve static assets in production, or mount Vite dev server in development
   if (process.env.NODE_ENV !== "production") {
