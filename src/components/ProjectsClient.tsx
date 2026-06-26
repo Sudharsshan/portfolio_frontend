@@ -4,7 +4,7 @@ import { useTheme } from "../context/ThemeContext";
 import { Project } from "../data/localProjects";
 import ProjectCard from "./ProjectCard";
 import ProjectModal from "./ProjectModal";
-import { Filter, SlidersHorizontal, CloudRain, Trophy, CodeXml, Loader2, Sparkles } from "lucide-react";
+import { Filter, SlidersHorizontal, CloudRain, Trophy, CodeXml, Loader2, Sparkles, HelpCircle, X, ArrowUp } from "lucide-react";
 
 interface Props {
   initialProjects?: Project[];
@@ -26,6 +26,27 @@ export default function ProjectsClient({ initialProjects }: Props) {
   const [filterTag, setFilterTag] = useState<string>("ALL");
   const [showCompleted, setShowCompleted] = useState(true);
   const [sourceInfo, setSourceInfo] = useState<string>(cachedSourceInfo);
+
+  // Project Codec Standards State
+  const [standardOpen, setStandardOpen] = useState(false);
+  const [standardHtml, setStandardHtml] = useState("");
+  const [loadingStandard, setLoadingStandard] = useState(false);
+
+  const fetchStandard = async () => {
+    try {
+      setLoadingStandard(true);
+      const res = await fetch("/api/project-id-standard");
+      const data = await res.json();
+      if (data.html) {
+        setStandardHtml(data.html);
+      }
+    } catch (err) {
+      console.error("Failed to load project standard:", err);
+      setStandardHtml("<p style='color: red;'>Failed to load project standards. Please try again later.</p>");
+    } finally {
+      setLoadingStandard(false);
+    }
+  };
 
   // Fetch full portfolio from Express server-side GitHub wrapper api
   useEffect(() => {
@@ -258,6 +279,195 @@ export default function ProjectsClient({ initialProjects }: Props) {
         project={selectedProject}
         onClose={() => setSelectedProject(null)}
       />
+
+      {/* Floating Codec Standard Guide Button (Bottom Left) */}
+      <button
+        onClick={() => {
+          setStandardOpen(true);
+          if (!standardHtml) {
+            fetchStandard();
+          }
+        }}
+        style={{
+          position: "fixed",
+          bottom: "2rem",
+          left: "2rem",
+          zIndex: 500,
+          display: "flex",
+          alignItems: "center",
+          gap: "0.5rem",
+          padding: "0.6rem 1.2rem",
+          background: `${theme.bgSecondary}CC`,
+          backdropFilter: "blur(12px)",
+          border: `1px solid ${theme.border}`,
+          borderRadius: "100px",
+          color: theme.text,
+          fontFamily: "var(--font-sans)",
+          fontSize: "0.85rem",
+          fontWeight: "600",
+          cursor: "pointer",
+          boxShadow: "0 10px 30px rgba(0,0,0,0.3)",
+          transition: "all 0.25s cubic-bezier(0.16, 1, 0.3, 1)",
+        }}
+        className="hover:scale-105 hover:border-accent group"
+      >
+        <HelpCircle size={15} style={{ color: theme.accent }} />
+        <span>What do those codec mean?</span>
+      </button>
+
+      {/* Floating Scroll to Top Button (Bottom Right) */}
+      <button
+        onClick={() => {
+          window.scrollTo({ top: 0, behavior: "smooth" });
+        }}
+        style={{
+          position: "fixed",
+          bottom: "2rem",
+          right: "2rem",
+          zIndex: 500,
+          display: "flex",
+          alignItems: "center",
+          gap: "0.5rem",
+          padding: "0.6rem 1.2rem",
+          background: `${theme.bgSecondary}CC`,
+          backdropFilter: "blur(12px)",
+          border: `1px solid ${theme.border}`,
+          borderRadius: "100px",
+          color: theme.text,
+          fontFamily: "var(--font-sans)",
+          fontSize: "0.85rem",
+          fontWeight: "600",
+          cursor: "pointer",
+          boxShadow: "0 10px 30px rgba(0,0,0,0.3)",
+          transition: "all 0.25s cubic-bezier(0.16, 1, 0.3, 1)",
+        }}
+        className="hover:scale-105 hover:border-accent group"
+      >
+        <ArrowUp size={15} style={{ color: theme.accent }} className="animate-bounce" />
+        <span>Scroll to Top</span>
+      </button>
+
+      {/* Codec Standards Modal Dialog */}
+      <AnimatePresence>
+        {standardOpen && (
+          <div
+            style={{
+              position: "fixed",
+              inset: 0,
+              zIndex: 2000,
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              padding: "1rem",
+            }}
+          >
+            {/* Backdrop */}
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 0.6 }}
+              exit={{ opacity: 0 }}
+              onClick={() => setStandardOpen(false)}
+              style={{
+                position: "fixed",
+                inset: 0,
+                background: "#000000",
+                backdropFilter: "blur(6px)",
+                zIndex: 2000,
+              }}
+            />
+
+            {/* Dialog Content */}
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95, y: 15 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.95, y: 15 }}
+              transition={{ type: "spring", damping: 25, stiffness: 220 }}
+              style={{
+                position: "relative",
+                width: "100%",
+                maxWidth: "650px",
+                maxHeight: "85vh",
+                background: theme.bgSecondary,
+                border: `1px solid ${theme.border}80`,
+                borderRadius: "16px",
+                zIndex: 2001,
+                overflow: "hidden",
+                display: "flex",
+                flexDirection: "column",
+                boxShadow: "0 24px 60px rgba(0,0,0,0.6)",
+              }}
+            >
+              {/* Header */}
+              <div
+                style={{
+                  padding: "1.25rem 1.5rem",
+                  borderBottom: `1px solid ${theme.border}40`,
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "space-between",
+                }}
+              >
+                <div style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
+                  <span
+                    style={{
+                      fontFamily: "var(--font-mono)",
+                      fontSize: "0.7rem",
+                      color: theme.accent,
+                      border: `1px solid ${theme.accent}30`,
+                      padding: "0.1rem 0.4rem",
+                      borderRadius: "4px",
+                      background: `${theme.accent}10`,
+                      letterSpacing: "0.05em",
+                    }}
+                  >
+                    STD_REF_PIDS.BIN
+                  </span>
+                  <h3 style={{ fontSize: "1rem", fontWeight: "700", color: theme.text, margin: 0 }}>
+                    System Coding Standard
+                  </h3>
+                </div>
+                <button
+                  onClick={() => setStandardOpen(false)}
+                  style={{
+                    background: "none",
+                    border: "none",
+                    cursor: "pointer",
+                    color: theme.textMuted,
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    padding: "0.4rem",
+                    borderRadius: "50%",
+                    transition: "all 0.2s",
+                  }}
+                  className="hover:bg-neutral-800 hover:text-white"
+                >
+                  <X size={18} />
+                </button>
+              </div>
+
+              {/* Body */}
+              <div
+                style={{
+                  padding: "1.5rem",
+                  overflowY: "auto",
+                  flex: 1,
+                }}
+                className="prose-content markdown-body"
+              >
+                {loadingStandard ? (
+                  <div style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", padding: "4rem 0", gap: "1rem" }}>
+                    <Loader2 size={32} className="animate-spin" style={{ color: theme.accent }} />
+                    <p style={{ fontSize: "0.85rem", color: theme.textMuted, fontFamily: "var(--font-mono)" }}>Decompressing specification manual...</p>
+                  </div>
+                ) : (
+                  <div dangerouslySetInnerHTML={{ __html: standardHtml }} />
+                )}
+              </div>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
     </div>
   );
 }

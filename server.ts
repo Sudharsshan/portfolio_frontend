@@ -304,6 +304,80 @@ async function startServer() {
     }
   });
 
+  // API Route to fetch project standard markdown and convert to HTML
+  app.get("/api/project-id-standard", async (req, res) => {
+    const GITHUB_TOKEN = process.env.GITHUB_TOKEN;
+    const OWNER = process.env.GITHUB_REPO_OWNER || "Sudharsshan";
+    const REPO = process.env.GITHUB_REPO_NAME || "Obsidian_notes";
+
+    let markdownContent = "";
+    let source = "local";
+
+    if (GITHUB_TOKEN) {
+      try {
+        const headers = {
+          Authorization: `Bearer ${GITHUB_TOKEN}`,
+          Accept: "application/vnd.github+json",
+          "User-Agent": "Sudharsshan-Portfolio-App",
+        };
+
+        const fileVariants = [
+          "templates-standards/PROJECT_ID_STANDARD.md",
+          "templates-standards/project_id_standard.md",
+        ];
+
+        for (const variant of fileVariants) {
+          const fileUrl = `https://api.github.com/repos/${OWNER}/${REPO}/contents/${variant}`;
+          const fileRes = await fetch(fileUrl, { headers });
+          if (fileRes.ok) {
+            const fileData = await fileRes.json() as { content: string };
+            markdownContent = Buffer.from(fileData.content, "base64").toString("utf-8");
+            source = "github";
+            break;
+          }
+        }
+      } catch (err: any) {
+        console.log("Information: Could not load PROJECT_ID_STANDARD.md from GitHub, falling back to local file.", err.message);
+      }
+    }
+
+    if (!markdownContent) {
+      const localVariants = [
+        path.join(process.cwd(), "templates-standards", "PROJECT_ID_STANDARD.md"),
+        path.join(process.cwd(), "templates-standards", "project_id_standard.md"),
+      ];
+
+      for (const lp of localVariants) {
+        try {
+          markdownContent = await fs.promises.readFile(lp, "utf-8");
+          source = "local";
+          break;
+        } catch {}
+      }
+
+      if (!markdownContent) {
+        markdownContent = "# Project ID Standards\n\nNo standards file found in workspace.";
+      }
+    }
+
+    try {
+      const { data, content } = matter(markdownContent);
+      const processed = await remark()
+        .use(remarkGfm)
+        .use(remarkHtml, { sanitize: false })
+        .process(content);
+
+      return res.json({
+        html: String(processed),
+        metadata: data,
+        source,
+      });
+    } catch (err: any) {
+      console.error("Error processing project standards markdown:", err);
+      return res.status(500).json({ error: "Failed to parse standards markdown" });
+    }
+  });
+
   // Serve static assets in production, or mount Vite dev server in development
   if (process.env.NODE_ENV !== "production") {
     const vite = await createViteServer({
