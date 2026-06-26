@@ -9,6 +9,15 @@ interface Props {
   onClose: () => void;
 }
 
+const STATUS_COLORS: Record<string, string> = {
+  ACTIVE: "#F97316",      // Orange
+  IN_PROGRESS: "#F97316", // Orange
+  COMPLETED: "#22C55E",   // Green
+  ABORTED: "#EF4444",     // Red
+  IDEA: "#FFFFFF",        // White
+  HOLD: "#6B7280",        // Grey
+};
+
 export default function ProjectModal({ project, onClose }: Props) {
   const { theme } = useTheme();
 
@@ -47,7 +56,7 @@ export default function ProjectModal({ project, onClose }: Props) {
               inset: 0,
               background: "rgba(2, 6, 23, 0.75)",
               backdropFilter: "blur(8px)",
-              zIndex: 200,
+              zIndex: 2000,
             }}
           />
 
@@ -66,7 +75,7 @@ export default function ProjectModal({ project, onClose }: Props) {
               width: "min(650px, 100vw)",
               background: theme.bgSecondary,
               borderLeft: `1px solid ${theme.border}50`,
-              zIndex: 201,
+              zIndex: 2001,
               overflowY: "auto",
               padding: "clamp(1.5rem, 4vw, 3rem)",
               boxShadow: "-10px 0 30px rgba(0,0,0,0.5)",
@@ -108,8 +117,19 @@ export default function ProjectModal({ project, onClose }: Props) {
                     background: theme.textMuted,
                   }}
                 />
-                <span style={{ fontSize: "0.75rem", color: theme.textMuted, fontWeight: "500" }}>
-                  {project.status}
+                <span
+                  className={project.status === "ACTIVE" || project.status === "IN_PROGRESS" ? "animate-pulse" : ""}
+                  style={{
+                    width: "8px",
+                    height: "8px",
+                    borderRadius: "50%",
+                    background: STATUS_COLORS[project.status] || "#94A3B8",
+                    boxShadow: `0 0 8px ${STATUS_COLORS[project.status] || "#94A3B8"}`,
+                    border: project.status === "IDEA" ? "1px solid rgba(128,128,128,0.4)" : "none",
+                  }}
+                />
+                <span style={{ fontSize: "0.75rem", color: theme.textMuted, fontWeight: "500", textTransform: "uppercase" }}>
+                  {project.status.replace("_", " ")}
                 </span>
               </div>
               <button
@@ -221,7 +241,7 @@ export default function ProjectModal({ project, onClose }: Props) {
                 )}
                 <div>
                   <p style={{ fontSize: "0.7rem", color: theme.textMuted, margin: 0, textTransform: "uppercase", letterSpacing: "0.05em" }}>Repository</p>
-                  {project.repository && project.repository !== "NA" ? (
+                  {project.repository && project.repository.startsWith("http") ? (
                     <a
                       href={project.repository}
                       target="_blank"
@@ -229,10 +249,12 @@ export default function ProjectModal({ project, onClose }: Props) {
                       style={{ fontSize: "0.85rem", color: theme.accent, fontWeight: "600", textDecoration: "none" }}
                       className="hover:underline"
                     >
-                      GitHub Repo ↗
+                      {project.repository} ↗
                     </a>
                   ) : (
-                    <p style={{ fontSize: "0.85rem", color: theme.text, fontWeight: "500", margin: 0 }}>Proprietary / Closed Source</p>
+                    <p style={{ fontSize: "0.85rem", color: theme.textMuted, fontWeight: "500", margin: 0 }}>
+                      {project.repository === "NA" ? "Not Available" : project.repository === "Yet to determine" ? "Yet to determine" : (project.repository || "Not Available")}
+                    </p>
                   )}
                 </div>
               </div>

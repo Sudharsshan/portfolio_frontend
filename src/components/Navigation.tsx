@@ -46,24 +46,25 @@ export default function Navigation() {
   const ActiveThemeIcon = THEME_OPTIONS.find((t) => t.value === timeOfDay)?.icon || Moon;
 
   return (
-    <nav
-      style={{
-        position: "fixed",
-        top: 0,
-        left: 0,
-        right: 0,
-        zIndex: 100,
-        padding: "0 clamp(1rem, 5vw, 4rem)",
-        height: "70px",
-        display: "flex",
-        alignItems: "center",
-        justifyContent: "space-between",
-        background: scrolled ? `${theme.bg}E6` : "transparent",
-        backdropFilter: scrolled ? "blur(16px)" : "none",
-        borderBottom: scrolled ? `1px solid ${theme.border}40` : "1px solid transparent",
-        transition: "all 0.5s cubic-bezier(0.16, 1, 0.3, 1)",
-      }}
-    >
+    <>
+      <nav
+        style={{
+          position: "fixed",
+          top: 0,
+          left: 0,
+          right: 0,
+          zIndex: 1000,
+          padding: "0 clamp(1rem, 5vw, 4rem)",
+          height: "70px",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "space-between",
+          background: scrolled ? `${theme.bg}E6` : "transparent",
+          backdropFilter: scrolled ? "blur(16px)" : "none",
+          borderBottom: scrolled ? `1px solid ${theme.border}40` : "1px solid transparent",
+          transition: "all 0.5s cubic-bezier(0.16, 1, 0.3, 1)",
+        }}
+      >
       {/* Logo/Monogram */}
       <Link href="/" className="group" style={{ textDecoration: "none", display: "flex", alignItems: "center", gap: "0.5rem" }}>
         <div
@@ -282,48 +283,49 @@ export default function Navigation() {
           <span style={{ fontSize: "0.75rem", fontWeight: "600", fontFamily: "var(--font-sans)", textTransform: "uppercase", letterSpacing: "0.05em" }}>Menu</span>
         </button>
       </div>
+    </nav>
 
-      {/* Mobile Drawer Menu */}
-      <AnimatePresence>
-        {menuOpen && (
-          <>
-            {/* Backdrop */}
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 0.5 }}
-              exit={{ opacity: 0 }}
-              onClick={() => setMenuOpen(false)}
-              style={{
-                position: "fixed",
-                inset: 0,
-                background: "#000000",
-                backdropFilter: "blur(4px)",
-                zIndex: 150,
-              }}
-            />
+    {/* Mobile Drawer Menu */}
+    <AnimatePresence>
+      {menuOpen && (
+        <>
+          {/* Backdrop */}
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 0.5 }}
+            exit={{ opacity: 0 }}
+            onClick={() => setMenuOpen(false)}
+            style={{
+              position: "fixed",
+              inset: 0,
+              background: "#000000",
+              backdropFilter: "blur(4px)",
+              zIndex: 1500,
+            }}
+          />
 
-            {/* Slider Panel right */}
-            <motion.div
-              initial={{ x: "100%" }}
-              animate={{ x: 0 }}
-              exit={{ x: "100%" }}
-              transition={{ type: "spring", damping: 25, stiffness: 220 }}
-              style={{
-                position: "fixed",
-                top: 0,
-                right: 0,
-                bottom: 0,
-                width: "min(300px, 85vw)",
-                background: theme.bgSecondary,
-                borderLeft: `1px solid ${theme.border}40`,
-                boxShadow: "-10px 0 30px rgba(0,0,0,0.3)",
-                padding: "2rem 1.5rem",
-                display: "flex",
-                flexDirection: "column",
-                zIndex: 160,
-                overflowY: "auto",
-              }}
-            >
+          {/* Slider Panel right */}
+          <motion.div
+            initial={{ x: "100%" }}
+            animate={{ x: 0 }}
+            exit={{ x: "100%" }}
+            transition={{ type: "spring", damping: 25, stiffness: 220 }}
+            style={{
+              position: "fixed",
+              top: 0,
+              right: 0,
+              bottom: 0,
+              width: "min(300px, 85vw)",
+              background: theme.bgSecondary,
+              borderLeft: `1px solid ${theme.border}40`,
+              boxShadow: "-10px 0 30px rgba(0,0,0,0.3)",
+              padding: "2rem 1.5rem",
+              display: "flex",
+              flexDirection: "column",
+              zIndex: 1600,
+              overflowY: "auto",
+            }}
+          >
               {/* Header inside drawer */}
               <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "2.5rem" }}>
                 <span
@@ -460,6 +462,6 @@ export default function Navigation() {
           </>
         )}
       </AnimatePresence>
-    </nav>
+    </>
   );
 }

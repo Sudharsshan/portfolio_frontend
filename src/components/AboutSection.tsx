@@ -26,7 +26,7 @@ export default function AboutSection() {
         
         {/* Left Column: Monogram & Performance Metrics */}
         <div style={{ display: "flex", flexDirection: "column", gap: "2rem" }}>
-          {/* Monogram Block */}
+          {/* Monogram Block with Silhouette */}
           <motion.div
             initial={{ opacity: 0, scale: 0.95 }}
             whileInView={{ opacity: 1, scale: 1 }}
@@ -38,33 +38,65 @@ export default function AboutSection() {
               borderRadius: "24px",
               height: "240px",
               display: "flex",
-              flexDirection: "column",
               alignItems: "center",
-              justifyContent: "center",
+              justifyContent: "space-between",
               position: "relative",
               overflow: "hidden",
+              padding: "0 2rem",
             }}
           >
             {/* Background design elements */}
             <div style={{ position: "absolute", inset: "12px", border: `1px dashed ${theme.border}20`, borderRadius: "16px", pointerEvents: "none" }} />
             
-            <span
+            <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-start", zIndex: 1 }}>
+              <span
+                style={{
+                  fontFamily: "var(--font-mono)",
+                  fontSize: "4.5rem",
+                  fontWeight: "900",
+                  background: `linear-gradient(130deg, ${theme.text} 30%, ${theme.accent} 100%)`,
+                  WebkitBackgroundClip: "text",
+                  WebkitTextFillColor: "transparent",
+                  lineHeight: 1,
+                  letterSpacing: "-0.04em",
+                }}
+              >
+                SYS
+              </span>
+              <span style={{ fontSize: "0.7rem", color: theme.textMuted, fontFamily: "var(--font-mono)", letterSpacing: "0.1em", textTransform: "uppercase", marginTop: "0.5rem" }}>
+                Silicon & Hardware
+              </span>
+            </div>
+
+            {/* Silhouette Profile Picture */}
+            <div
               style={{
-                fontFamily: "var(--font-mono)",
-                fontSize: "5.5rem",
-                fontWeight: "900",
-                background: `linear-gradient(130deg, ${theme.text} 30%, ${theme.accent} 100%)`,
-                WebkitBackgroundClip: "text",
-                WebkitTextFillColor: "transparent",
-                lineHeight: 1,
-                letterSpacing: "-0.04em",
+                width: "105px",
+                height: "105px",
+                borderRadius: "50%",
+                background: `linear-gradient(180deg, ${theme.accent}15 0%, ${theme.border}40 100%)`,
+                border: `1px solid ${theme.accent}30`,
+                display: "flex",
+                alignItems: "flex-end",
+                justifyContent: "center",
+                overflow: "hidden",
+                position: "relative",
+                zIndex: 1,
               }}
             >
-              SYS
-            </span>
-            <span style={{ fontSize: "0.75rem", color: theme.textMuted, fontFamily: "var(--font-mono)", letterSpacing: "0.15em", textTransform: "uppercase", marginTop: "0.5rem" }}>
-              Silicon & Hardware
-            </span>
+              <svg
+                viewBox="0 0 100 100"
+                style={{
+                  width: "80%",
+                  height: "80%",
+                  fill: theme.textMuted,
+                  opacity: 0.8,
+                }}
+              >
+                <circle cx="50" cy="38" r="17" />
+                <path d="M50,60 C25,60 20,95 20,100 L80,100 C80,95 75,60 50,60 Z" />
+              </svg>
+            </div>
           </motion.div>
 
           {/* Quick Metrics Cards */}
@@ -150,19 +182,8 @@ export default function AboutSection() {
             </h3>
             <p style={{ color: theme.textMuted, fontSize: "0.92rem", lineHeight: "1.7", margin: 0 }}>
               I study edge intelligence architectures that require low CPU states yet handle dynamic computer vision loads offline. 
-              My experiments involve configuring DMA transfers on STM32 boards, balancing motor limits over CAN bus arrays, and designing high-efficiency power stages like buck controllers to maintain hardware resilience in real-world environments.
+              My experiments involve configuring DMA transfers on STM32 boards, designing high-efficiency power stages like buck controllers to maintain hardware resilience in real-world environments, and planning and structuring entire project architectures from inception to implementation.
             </p>
-          </div>
-
-          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "1rem" }}>
-            <div style={{ borderLeft: `2px solid ${theme.accent}`, paddingLeft: "1rem" }}>
-              <h4 style={{ fontSize: "0.9rem", fontWeight: "600", color: theme.text, margin: "0 0 0.25rem 0" }}>Hardware-Software Co-Design</h4>
-              <p style={{ fontSize: "0.80rem", color: theme.textMuted, margin: 0 }}>Maximizing clock cycles on microcontrollers via optimized pointer bindings.</p>
-            </div>
-            <div style={{ borderLeft: `2px solid ${theme.accent}`, paddingLeft: "1rem" }}>
-              <h4 style={{ fontSize: "0.9rem", fontWeight: "600", color: theme.text, margin: "0 0 0.25rem 0" }}>Low-Latency Telemetry</h4>
-              <p style={{ fontSize: "0.80rem", color: theme.textMuted, margin: 0 }}>Encoding tight JSON strings or MQTT bytes to safely stream over volatile cellular networks.</p>
-            </div>
           </div>
         </div>
 

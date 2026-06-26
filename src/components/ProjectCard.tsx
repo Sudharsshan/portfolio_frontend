@@ -11,9 +11,12 @@ interface Props {
 }
 
 const STATUS_COLORS: Record<string, string> = {
-  COMPLETED: "#22C55E",
-  IN_PROGRESS: "#F59E0B",
-  HOLD: "#94A3B8",
+  ACTIVE: "#F97316",      // Orange
+  IN_PROGRESS: "#F97316", // Orange
+  COMPLETED: "#22C55E",   // Green
+  ABORTED: "#EF4444",     // Red
+  IDEA: "#FFFFFF",        // White
+  HOLD: "#6B7280",        // Grey
 };
 
 export default function ProjectCard({ project, index, onClick }: Props) {
@@ -80,12 +83,14 @@ export default function ProjectCard({ project, index, onClick }: Props) {
           </span>
           <div style={{ display: "flex", alignItems: "center", gap: "0.4rem" }}>
             <span
+              className={project.status === "ACTIVE" || project.status === "IN_PROGRESS" ? "animate-pulse" : ""}
               style={{
                 width: "8px",
                 height: "8px",
                 borderRadius: "50%",
-                background: STATUS_COLORS[project.status] || STATUS_COLORS.IN_PROGRESS,
-                boxShadow: `0 0 8px ${STATUS_COLORS[project.status] || STATUS_COLORS.IN_PROGRESS}`,
+                background: STATUS_COLORS[project.status] || "#94A3B8",
+                boxShadow: `0 0 8px ${STATUS_COLORS[project.status] || "#94A3B8"}`,
+                border: project.status === "IDEA" ? "1px solid rgba(128, 128, 128, 0.4)" : "none",
               }}
             />
             <span style={{ fontSize: "0.7rem", color: theme.textMuted, letterSpacing: "0.08em", fontWeight: "500", textTransform: "uppercase" }}>
@@ -150,7 +155,7 @@ export default function ProjectCard({ project, index, onClick }: Props) {
           )}
         </div>
         <div style={{ display: "flex", alignItems: "center", gap: "0.1rem", fontSize: "0.75rem", color: theme.accent, fontWeight: "500" }}>
-          <span>Specs</span>
+          <span>details</span>
           <ArrowUpRight size={12} />
         </div>
       </div>

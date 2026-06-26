@@ -6,6 +6,7 @@ import { remark } from "remark";
 import remarkGfm from "remark-gfm";
 import remarkHtml from "remark-html";
 import dotenv from "dotenv";
+import fs from "fs";
 
 // Load environment variables
 dotenv.config();
@@ -217,6 +218,89 @@ async function startServer() {
       console.log("Information: Could not synchronise live projects from GitHub repository. Operating in standalone local database mode.", error.message);
       // Fallback in case of rate limit, invalid token, etc.
       return res.json({ projects: fallbackProjects, source: "fallback_error" });
+    }
+  });
+
+  // API Route to fetch internship markdown and convert to HTML
+  app.get("/api/internship", async (req, res) => {
+    const GITHUB_TOKEN = process.env.GITHUB_TOKEN;
+    const OWNER = process.env.GITHUB_REPO_OWNER || "Sudharsshan";
+    const REPO = process.env.GITHUB_REPO_NAME || "Obsidian_notes";
+
+    let markdownContent = "";
+    let source = "local";
+
+    if (GITHUB_TOKEN) {
+      try {
+        const headers = {
+          Authorization: `Bearer ${GITHUB_TOKEN}`,
+          Accept: "application/vnd.github+json",
+          "User-Agent": "Sudharsshan-Portfolio-App",
+        };
+
+        const fileVariants = [
+          "Internship/ReadMe.md",
+          "Internship/ReadMe",
+          "internship/ReadMe.md",
+          "internship/ReadMe",
+          "internship/README.md",
+          "internship/readme.md",
+          "internship/Readme.md",
+        ];
+
+        for (const variant of fileVariants) {
+          const fileUrl = `https://api.github.com/repos/${OWNER}/${REPO}/contents/${variant}`;
+          const fileRes = await fetch(fileUrl, { headers });
+          if (fileRes.ok) {
+            const fileData = await fileRes.json() as { content: string };
+            markdownContent = Buffer.from(fileData.content, "base64").toString("utf-8");
+            source = "github";
+            break;
+          }
+        }
+      } catch (err: any) {
+        console.log("Information: Could not load internship from GitHub repo, falling back to local file.", err.message);
+      }
+    }
+
+    // Fallback to reading local file variants if github fetch failed or was skipped
+    if (!markdownContent) {
+      const localVariants = [
+        path.join(process.cwd(), "internship", "ReadMe.md"),
+        path.join(process.cwd(), "internship", "ReadMe"),
+        path.join(process.cwd(), "internship", "README.md"),
+        path.join(process.cwd(), "internship", "readme.md"),
+      ];
+      
+      for (const lp of localVariants) {
+        try {
+          markdownContent = await fs.promises.readFile(lp, "utf-8");
+          source = "local";
+          break;
+        } catch {}
+      }
+
+      if (!markdownContent) {
+        markdownContent = "# Internship Experience\n\nNo internship markdown found in workspace.";
+      }
+    }
+
+    try {
+      // Process markdown to HTML
+      const { data, content } = matter(markdownContent);
+      const processed = await remark()
+        .use(remarkGfm)
+        .use(remarkHtml, { sanitize: false })
+        .process(content);
+
+      return res.json({
+        html: String(processed),
+        metadata: data,
+        source,
+      });
+    } catch (err: any) {
+      console.error("Error processing internship markdown:", err);
+      return res.status(500).json({ error: "Failed to parse internship markdown" });
     }
   });
 

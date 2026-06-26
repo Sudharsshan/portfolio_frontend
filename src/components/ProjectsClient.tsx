@@ -106,10 +106,10 @@ export default function ProjectsClient({ initialProjects }: Props) {
           ENGINEERING JOURNAL
         </p>
         <h1 style={{ fontSize: "clamp(2rem, 5vw, 3.2rem)", fontWeight: 800, color: theme.text, lineHeight: 1.1, letterSpacing: "-0.01em" }}>
-          Specs & Hardware Projects
+          My projects
         </h1>
         <p style={{ color: theme.textMuted, marginTop: "0.5rem", fontSize: "0.95rem" }}>
-          Verifiable files synchronised directly with internal Obsidian lab notebooks (PIDS schema).
+          Files synchronised directly with internal Obsidian lab notebooks (PIDS schema).
         </p>
         
         {sourceInfo && sourceInfo.startsWith("github") && (

@@ -1,133 +1,148 @@
+import { useEffect, useState } from "react";
 import { motion } from "motion/react";
 import { useTheme } from "../context/ThemeContext";
-import { experiences } from "../data/experience";
-import { Briefcase, Calendar, Award } from "lucide-react";
+import { Briefcase, Calendar, Search, Sparkles, Loader2 } from "lucide-react";
 
 export default function ExperienceSection() {
   const { theme } = useTheme();
+  const [internshipHtml, setInternshipHtml] = useState<string>("");
+  const [loading, setLoading] = useState<boolean>(true);
+
+  useEffect(() => {
+    fetch("/api/internship")
+      .then((res) => res.json())
+      .then((data) => {
+        if (data.html) {
+          setInternshipHtml(data.html);
+        }
+      })
+      .catch((err) => {
+        console.error("Error fetching internship HTML:", err);
+      })
+      .finally(() => {
+        setLoading(false);
+      });
+  }, []);
 
   return (
     <div style={{ padding: "6.5rem 1.5rem 4rem", maxWidth: "900px", margin: "0 auto", minHeight: "85vh" }}>
       {/* Header */}
-      <div style={{ marginBottom: "4rem" }}>
+      <div style={{ marginBottom: "3rem" }}>
         <p style={{ fontFamily: "var(--font-mono)", fontSize: "0.8rem", color: theme.accent, letterSpacing: "0.15em", marginBottom: "0.75rem", textTransform: "uppercase" }}>
           PROFESSIONAL PROGRESS
         </p>
         <h1 style={{ fontSize: "clamp(2rem, 5vw, 3.2rem)", fontWeight: 800, color: theme.text, lineHeight: 1.1, letterSpacing: "-0.01em" }}>
           Gears & Experience
         </h1>
-        <p style={{ color: theme.textMuted, marginTop: "0.5rem", fontSize: "0.95rem" }}>
-          Milestones across hardware-software co-design, solar electric vehicles, and autonomous firmware loops.
-        </p>
       </div>
 
-      {/* Timeline List */}
-      <div style={{ position: "relative", paddingLeft: "1.5rem" }}>
-        {/* Vertical line accent */}
-        <div
-          style={{
-            position: "absolute",
-            top: "8px",
-            bottom: "8px",
-            left: "4px",
-            width: "2px",
-            background: `linear-gradient(180deg, ${theme.accent}cc 0%, ${theme.border}40 100%)`,
-          }}
-        />
+      {/* Internship Experience Section */}
+      <div style={{ marginBottom: "4.5rem" }}>
+        <h2 style={{ fontSize: "1.8rem", fontWeight: "700", color: theme.text, marginBottom: "1.5rem", display: "flex", alignItems: "center", gap: "0.75rem" }}>
+          <Briefcase size={22} style={{ color: theme.accent }} />
+          <span>Internship Experience</span>
+        </h2>
 
-        {experiences.map((exp, index) => (
+        {loading ? (
+          <div style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", padding: "3rem", gap: "1rem" }}>
+            <Loader2 size={32} className="animate-spin" style={{ color: theme.accent }} />
+            <p style={{ fontSize: "0.85rem", color: theme.textMuted, fontFamily: "var(--font-mono)" }}>Retrieving engineering notebooks...</p>
+          </div>
+        ) : (
           <motion.div
-            key={index}
-            initial={{ opacity: 0, x: -25 }}
-            whileInView={{ opacity: 1, x: 0 }}
-            viewport={{ once: true, margin: "-100px" }}
-            transition={{ duration: 0.6, delay: index * 0.1, ease: "easeOut" }}
-            style={{ position: "relative", marginBottom: "3rem" }}
+            initial={{ opacity: 0, y: 15 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5 }}
+            style={{
+              background: theme.bgSecondary,
+              border: `1px solid ${theme.border}40`,
+              borderRadius: "16px",
+              padding: "2rem",
+            }}
+            className="prose-content markdown-body"
           >
-            {/* Timeline bullet beacon */}
-            <div
-              style={{
-                position: "absolute",
-                left: "-21px",
-                top: "6px",
-                width: "12px",
-                height: "12px",
-                borderRadius: "50%",
-                background: theme.accent,
-                border: `3px solid ${theme.bg}`,
-                boxShadow: `0 0 10px ${theme.accent}`,
-              }}
-            />
+            {internshipHtml ? (
+              <div dangerouslySetInnerHTML={{ __html: internshipHtml }} />
+            ) : (
+              <p style={{ color: theme.textMuted, fontSize: "0.95rem" }}>No internship experience records found.</p>
+            )}
+          </motion.div>
+        )}
+      </div>
 
-            {/* Exp Card Content */}
+      {/* Professional Experience Section */}
+      <div>
+        <h2 style={{ fontSize: "1.8rem", fontWeight: "700", color: theme.text, marginBottom: "1.5rem", display: "flex", alignItems: "center", gap: "0.75rem" }}>
+          <Search size={22} style={{ color: theme.accent }} />
+          <span>Professional Experience</span>
+        </h2>
+
+        <motion.div
+          initial={{ opacity: 0, y: 15 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.5 }}
+          style={{
+            background: `${theme.accent}05`,
+            border: `1px dashed ${theme.accent}50`,
+            borderRadius: "16px",
+            padding: "2.5rem 2rem",
+            position: "relative",
+            overflow: "hidden",
+          }}
+        >
+          {/* Subtle decoration */}
+          <div style={{ position: "absolute", right: "-20px", bottom: "-20px", opacity: 0.03, pointerEvents: "none" }}>
+            <Briefcase size={180} />
+          </div>
+
+          <div style={{ display: "flex", alignItems: "flex-start", gap: "1.25rem" }}>
             <div
               style={{
-                background: theme.bgSecondary,
-                border: `1px solid ${theme.border}30`,
-                borderRadius: "16px",
-                padding: "2rem",
-                transition: "all 0.3s ease",
+                background: `${theme.accent}15`,
+                color: theme.accent,
+                padding: "0.75rem",
+                borderRadius: "12px",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                flexShrink: 0,
               }}
-              className="hover:border-accent hover:shadow-[0_10px_20px_-10px_rgba(56,189,248,0.08)]"
             >
-              {/* Meta row */}
-              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", flexWrap: "wrap", gap: "0.5rem" }}>
-                <div>
-                  <h3 style={{ fontSize: "1.25rem", fontWeight: "700", color: theme.accent, marginBottom: "0.25rem" }}>
-                    {exp.role}
-                  </h3>
-                  <p style={{ fontSize: "0.95rem", fontWeight: "600", color: theme.text, display: "flex", alignItems: "center", gap: "0.4rem" }}>
-                    <Briefcase size={14} style={{ color: theme.textMuted }} />
-                    <span>{exp.org}</span>
-                  </p>
-                </div>
+              <Sparkles size={24} className="animate-pulse" />
+            </div>
 
-                <span
-                  style={{
-                    fontFamily: "var(--font-mono)",
-                    fontSize: "0.78rem",
-                    color: theme.textMuted,
-                    background: `${theme.border}1F`,
-                    padding: "0.25rem 0.6rem",
-                    borderRadius: "6px",
-                    border: `1px solid ${theme.border}40`,
-                    display: "flex",
-                    alignItems: "center",
-                    gap: "0.4rem",
-                  }}
-                >
-                  <Calendar size={12} />
-                  <span>{exp.period}</span>
-                </span>
-              </div>
-
-              {/* Description */}
-              <p style={{ color: theme.textMuted, fontSize: "0.92rem", lineHeight: "1.6", margin: "1.25rem 0" }}>
-                {exp.desc}
+            <div>
+              <h3 style={{ fontSize: "1.3rem", fontWeight: "700", color: theme.text, marginBottom: "0.5rem" }}>
+                Actively Seeking New Opportunities
+              </h3>
+              <p style={{ color: theme.text, fontWeight: "600", fontSize: "0.9rem", marginBottom: "0.75rem" }}>
+                Embedded Systems · IoT · Firmware Engineering Roles
               </p>
-
-              {/* Tag Pills */}
-              <div style={{ display: "flex", gap: "0.5rem", flexWrap: "wrap" }}>
-                {exp.tags.map((tag) => (
+              <p style={{ color: theme.textMuted, fontSize: "0.95rem", lineHeight: "1.6" }}>
+                As a fresh Electrical & Electronics Engineering graduate with a CGPA of 8.9 and deep hands-on expertise across STM32/ESP32 firmware development, hardware-software co-design, real-time operating systems, and solar EV control architectures, I am prepared to deliver immediate value in fast-paced product development environments.
+              </p>
+              <div style={{ display: "flex", flexWrap: "wrap", gap: "0.5rem", marginTop: "1.25rem" }}>
+                {["STM32", "ESP32", "FreeRTOS", "Embedded C", "KiCad PCB Design", "IoT SaaS", "CAN Bus"].map((skill) => (
                   <span
-                    key={tag}
+                    key={skill}
                     style={{
-                      fontSize: "0.7rem",
-                      padding: "0.2rem 0.55rem",
-                      background: `${theme.accent}0a`,
-                      color: theme.text,
-                      border: `1px solid ${theme.border}50`,
+                      fontSize: "0.72rem",
+                      fontWeight: "500",
+                      padding: "0.25rem 0.65rem",
+                      background: theme.bg,
+                      color: theme.accent,
+                      border: `1px solid ${theme.border}40`,
                       borderRadius: "6px",
-                      letterSpacing: "0.03em",
                     }}
                   >
-                    {tag}
+                    {skill}
                   </span>
                 ))}
               </div>
             </div>
-          </motion.div>
-        ))}
+          </div>
+        </motion.div>
       </div>
     </div>
   );

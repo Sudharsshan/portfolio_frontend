@@ -2,7 +2,7 @@ export interface Project {
   project_id: string;        // e.g. C2507PE-01
   title: string;
   owner: "College" | "personal";
-  status: "COMPLETED" | "IN_PROGRESS" | "HOLD";
+  status: "ACTIVE" | "IN_PROGRESS" | "COMPLETED" | "ABORTED" | "IDEA" | "HOLD";
   ideation_date: string;
   domain: string;
   subdomains: string;

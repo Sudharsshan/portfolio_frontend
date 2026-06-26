@@ -11,3 +11,12 @@ co-design. I'm drawn to problems that live at the boundary of silicon and softwa
   linkedin: "https://www.linkedin.com/in/s-y-sudharsshan/",
   location: "Bengaluru, India",
 };
+
+export const themedQuotes = [
+  "Creativity is Fun",
+  "Design is Code Made Visible",
+  "Where Silicon Meets Software",
+  "Precision Engineering at the Edge",
+  "Synthesizing Hardware and Firmware",
+];
+
