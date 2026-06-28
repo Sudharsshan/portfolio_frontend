@@ -22,3 +22,15 @@ export interface CacheStore {
   internship: CacheEntry<MarkdownResponse>;
   standard: CacheEntry<MarkdownResponse>;
 }
+
+export class DiagnosticsError extends Error {
+  public step: string;
+  public details?: any;
+
+  constructor(message: string, step: string, details?: any) {
+    super(message);
+    this.name = "DiagnosticsError";
+    this.step = step;
+    this.details = details;
+  }
+}
