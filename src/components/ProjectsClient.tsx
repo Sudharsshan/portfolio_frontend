@@ -80,11 +80,16 @@ export default function ProjectsClient({ initialProjects }: Props) {
     fetchProjects();
   }, [initialProjects]);
 
-  // Derive unique filter options dynamically from active dataset
-  const allDomains = useMemo(() => {
-    const domains = new Set(projects.map((p) => p.domain.replace("- ", "").trim()).filter(Boolean));
-    return ["ALL", ...Array.from(domains)];
-  }, [projects]);
+  const STATIC_DOMAINS = ["ALL", "digital", "physical", "digital & physical"];
+  const STATUS_OPTIONS = ["IDEA", "ACTIVE", "ON HOLD", "ABORTED", "COMPLETED", "ALL"];
+
+  const getNormalizedDomain = (domain: string): string => {
+    const clean = domain.replace(/^-\s*/, "").trim().toLowerCase();
+    if (clean === "digital") return "digital";
+    if (clean === "physical") return "physical";
+    if (clean.includes("digital") && clean.includes("physical")) return "digital & physical";
+    return clean;
+  };
 
   const allTags = useMemo(() => {
     const tags = new Set(projects.flatMap((p) => p.tags).filter(Boolean));
@@ -94,11 +99,24 @@ export default function ProjectsClient({ initialProjects }: Props) {
   const filtered = useMemo(() =>
     projects.filter((p) => {
       if (!showCompleted && p.status === "COMPLETED") return false;
-      if (filterStatus !== "ALL" && p.status !== filterStatus) return false;
-      if (filterDomain !== "ALL") {
-        const dom = p.domain.replace("- ", "").trim();
-        if (dom !== filterDomain) return false;
+
+      // Status Filter Match
+      if (filterStatus !== "ALL") {
+        if (filterStatus === "ACTIVE") {
+          if (p.status !== "ACTIVE" && p.status !== "IN_PROGRESS") return false;
+        } else if (filterStatus === "ON HOLD") {
+          if (p.status !== "HOLD" && p.status !== "ON HOLD" && p.status !== "ON_HOLD") return false;
+        } else {
+          if (p.status !== filterStatus) return false;
+        }
       }
+
+      // Domain Filter Match
+      if (filterDomain !== "ALL") {
+        const normDom = getNormalizedDomain(p.domain);
+        if (normDom !== filterDomain) return false;
+      }
+
       if (filterTag !== "ALL" && !p.tags.includes(filterTag)) return false;
       return true;
     }),
@@ -172,9 +190,9 @@ export default function ProjectsClient({ initialProjects }: Props) {
             <div style={{ display: "flex", gap: "0.75rem", flexWrap: "wrap", alignItems: "center" }}>
               <span style={{ fontSize: "0.7rem", color: theme.textMuted, letterSpacing: "0.08em", fontWeight: "600", minWidth: "100px", textTransform: "uppercase" }}>Status</span>
               <div style={{ display: "flex", gap: "0.4rem", flexWrap: "wrap" }}>
-                {["ALL", "COMPLETED", "IN_PROGRESS", "HOLD"].map((s) => (
+                {STATUS_OPTIONS.map((s) => (
                   <button key={s} style={pillStyle(filterStatus === s)} onClick={() => setFilterStatus(s)}>
-                    {s === "ALL" ? "All Gears" : s.replace("_", " ")}
+                    {s}
                   </button>
                 ))}
               </div>
@@ -194,9 +212,9 @@ export default function ProjectsClient({ initialProjects }: Props) {
             <div style={{ display: "flex", gap: "0.75rem", flexWrap: "wrap", alignItems: "center" }}>
               <span style={{ fontSize: "0.7rem", color: theme.textMuted, letterSpacing: "0.08em", fontWeight: "600", minWidth: "100px", textTransform: "uppercase" }}>Core Domain</span>
               <div style={{ display: "flex", gap: "0.4rem", flexWrap: "wrap" }}>
-                {allDomains.map((d) => (
+                {STATIC_DOMAINS.map((d) => (
                   <button key={d} style={pillStyle(filterDomain === d)} onClick={() => setFilterDomain(d)}>
-                    {d === "ALL" ? "All Domains" : d}
+                    {d === "ALL" ? "All domains" : d}
                   </button>
                 ))}
               </div>
