@@ -23,7 +23,7 @@ export default function ProjectsClient({ initialProjects }: Props) {
   // Filter States
   const [filterStatus, setFilterStatus] = useState<string>("ALL");
   const [filterDomain, setFilterDomain] = useState<string>("ALL");
-  const [filterTag, setFilterTag] = useState<string>("ALL");
+  const [filterTags, setFilterTags] = useState<string[]>([]);
   const [showCompleted, setShowCompleted] = useState(true);
   const [sourceInfo, setSourceInfo] = useState<string>(cachedSourceInfo);
 
@@ -117,10 +117,13 @@ export default function ProjectsClient({ initialProjects }: Props) {
         if (normDom !== filterDomain) return false;
       }
 
-      if (filterTag !== "ALL" && !p.tags.includes(filterTag)) return false;
+      if (filterTags.length > 0) {
+        const hasMatch = p.tags.some((tag) => filterTags.includes(tag));
+        if (!hasMatch) return false;
+      }
       return true;
     }),
-    [projects, filterStatus, filterDomain, filterTag, showCompleted]
+    [projects, filterStatus, filterDomain, filterTags, showCompleted]
   );
 
   const pillStyle = (active: boolean) => ({
@@ -224,11 +227,29 @@ export default function ProjectsClient({ initialProjects }: Props) {
             <div style={{ display: "flex", gap: "0.75rem", flexWrap: "wrap", alignItems: "center" }}>
               <span style={{ fontSize: "0.7rem", color: theme.textMuted, letterSpacing: "0.08em", fontWeight: "600", minWidth: "100px", textTransform: "uppercase" }}>Key Tech stack</span>
               <div style={{ display: "flex", gap: "0.4rem", flexWrap: "wrap" }}>
-                {allTags.map((t) => (
-                  <button key={t} style={pillStyle(filterTag === t)} onClick={() => setFilterTag(t === filterTag ? "ALL" : t)}>
-                    {t === "ALL" ? "Any Tech" : t}
-                  </button>
-                ))}
+                {allTags.map((t) => {
+                  const isAll = t === "ALL";
+                  const isActive = isAll ? filterTags.length === 0 : filterTags.includes(t);
+                  return (
+                    <button
+                      key={t}
+                      style={pillStyle(isActive)}
+                      onClick={() => {
+                        if (isAll) {
+                          setFilterTags([]);
+                        } else {
+                          if (filterTags.includes(t)) {
+                            setFilterTags(filterTags.filter((tag) => tag !== t));
+                          } else {
+                            setFilterTags([...filterTags, t]);
+                          }
+                        }
+                      }}
+                    >
+                      {isAll ? "Any Tech" : t}
+                    </button>
+                  );
+                })}
               </div>
             </div>
 
@@ -248,7 +269,7 @@ export default function ProjectsClient({ initialProjects }: Props) {
                 onClick={() => {
                   setFilterStatus("ALL");
                   setFilterDomain("ALL");
-                  setFilterTag("ALL");
+                  setFilterTags([]);
                   setShowCompleted(true);
                 }}
                 style={{
