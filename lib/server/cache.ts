@@ -1,9 +1,9 @@
 import fs from "fs";
 import path from "path";
-import { CacheStore, ProjectsResponse, MarkdownResponse, DiagnosticsError } from "./types";
-import { fallbackProjects, parseProjectId } from "./parser";
-import { fetchLatestCommitSha, fetchDirectoryContents, fetchFileContent } from "./github";
-import { safeParseMarkdown } from "./markdown";
+import { CacheStore, ProjectsResponse, MarkdownResponse, DiagnosticsError } from "./types.js";
+import { fallbackProjects, parseProjectId } from "./parser.js";
+import { fetchLatestCommitSha, fetchDirectoryContents, fetchFileContent } from "./github.js";
+import { safeParseMarkdown } from "./markdown.js";
 
 let globalCache: CacheStore | null = null;
 
@@ -215,7 +215,7 @@ export class GitHubContentCache {
 
       await Promise.all(
         directories.map(async (folder) => {
-          const fileVariants = ["ReadMe.md", "README.md", "Readme.md", "readme.md"];
+          const fileVariants = ["README.md"];
           let readmeContent: string | null = null;
           let foundVariant = "";
 
@@ -308,7 +308,7 @@ export class GitHubContentCache {
       console.log(`[Cache Refresh Fallback] No cached projects available. Serving fallback projects (Timestamp: ${timestamp})`);
       const fallbackResult = { projects: fallbackProjects, source: "fallback_error" };
       entry.data = fallbackResult;
-      entry.source = "fallback_error";
+      entry.source = fallbackResult.source;
       return fallbackResult;
     }
   }
@@ -356,13 +356,8 @@ export class GitHubContentCache {
       }
 
       const fileVariants = [
-        "Internship/ReadMe.md",
-        "Internship/ReadMe",
-        "internship/ReadMe.md",
-        "internship/ReadMe",
+        "Internship/README.md",
         "internship/README.md",
-        "internship/readme.md",
-        "internship/Readme.md",
       ];
 
       let markdownContent = "";
@@ -441,10 +436,7 @@ export class GitHubContentCache {
    */
   private async loadLocalInternship(): Promise<MarkdownResponse> {
     const localVariants = [
-      path.join(process.cwd(), "internship", "ReadMe.md"),
-      path.join(process.cwd(), "internship", "ReadMe"),
       path.join(process.cwd(), "internship", "README.md"),
-      path.join(process.cwd(), "internship", "readme.md"),
     ];
 
     let markdownContent = "";

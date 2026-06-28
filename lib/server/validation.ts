@@ -1,4 +1,4 @@
-import { DiagnosticsError } from "./types";
+import { DiagnosticsError } from "./types.js";
 
 /**
  * Validates that all required environment variables are present.

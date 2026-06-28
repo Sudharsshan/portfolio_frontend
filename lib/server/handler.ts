@@ -1,12 +1,8 @@
-import { validateEnv } from "./validation";
-import { DiagnosticsError } from "./types";
+import { validateEnv } from "./validation.js";
+import { DiagnosticsError } from "./types.js";
+import { gitHubContentCache } from "./cache.js";
 
-/**
- * Reusable wrapper to run serverless handlers with top-level try/catch,
- * environment validation, structured logging, consistent error response,
- * and detailed diagnostics in development mode.
- */
-export async function handleRequest(
+async function runHandler(
   req: any,
   res: any,
   endpointName: string,
@@ -52,4 +48,22 @@ export async function handleRequest(
       });
     }
   }
+}
+
+export async function handleProjects(req: any, res: any) {
+  return runHandler(req, res, "Projects", async () => {
+    return await gitHubContentCache.getProjects();
+  });
+}
+
+export async function handleInternship(req: any, res: any) {
+  return runHandler(req, res, "Internship", async () => {
+    return await gitHubContentCache.getInternship();
+  });
+}
+
+export async function handleProjectIdStandard(req: any, res: any) {
+  return runHandler(req, res, "ProjectIDStandard", async () => {
+    return await gitHubContentCache.getProjectIdStandard();
+  });
 }

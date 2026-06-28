@@ -1,4 +1,4 @@
-import { DiagnosticsError } from "./types";
+import { DiagnosticsError } from "./types.js";
 
 /**
  * Reusable helper that executes fetch, verifies response.ok, parses JSON,

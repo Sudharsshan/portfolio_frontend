@@ -1,4 +1,4 @@
-import { parseMarkdownToHtml } from "./markdown";
+import { parseMarkdownToHtml } from "./markdown.js";
 
 export const fallbackProjects = [
   {
